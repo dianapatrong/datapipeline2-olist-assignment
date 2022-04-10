@@ -48,15 +48,40 @@ Evaluation (100 points, 50 points required to have the module)
 
 
 
+### Pre-requisites: 
+- Install Apache Spark
+- Install mill `brew install mill`
 
+### How to run: 
 
-How to: 
-
-- clone repo
-- download data from kaggle
-  - unzip .zip file
-  - copy archive folder into data/ 
+- Clone repo `git clone https://github.com/dianapatrong/datapipeline2-olist-assignment.git`
+- Download data from kaggle https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
+  - Unzip the `archive.zip` file
+  - Copy archive folder into the folder `data/` inside the repository
     
-- run: $ mill spark.standalone.run
+- Run: `mill spark.standalone.run`
+  ![Result](documentation/ResultsOnTerminal.png)
+  
 
+- Go to `output/late_deliveries` folder to get the result in CSV format
+
+
+### Result explanation
+ For getting the deliveries that were late for more than 10 days I used the following files: 
+ * `olist_orders_dataset.csv` -> to get information regarding which orders were late and from which customers 
+ * `olist_order_items_dataset.csv` -> helper to identify which kind of product was ordered
+ * `olist_products_dataset.csv` -> to identify the kind of product that was being delivered late
+
+1. Read the `olist_orders_dataset.csv` and convert `order_delivered_customer_date` and `order_purchase_timestamp` into UTC timestamp from a timezone of Sao Paolo
+```
+NOTE: I'm taking into account that the columns order_purchase_timestamp and order_delivered_customer_date are by default in Sao Paolo timezone 
+```
+2. Calculate the difference in days from the columns previously converted to get the late deliveries
+3. Filter the data to only include the deliveries that were more than 10 days late
+
+Extra:
+Since I wanted to know what kind of products were delivered late I did the following: 
+4. Read the `olist_order_items_dataset.csv` and `olist_products_dataset.csv` csv's and joined them to get the product information.
+
+![Olist sources](documentation/olist_sources.png)
 
