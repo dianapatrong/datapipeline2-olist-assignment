@@ -26,12 +26,11 @@ Requirements:
   
 - The logs should be similar to the below image: 
   ![Result](documentation/ResultsOnTerminal.png)
-
-
+  
   Alternatively we could run our script using `spark-submit`, but we will need the jar file, this will be covered on the "How to run on AWS" section
-  ```  
-$ spark-submit --class OlistCli out/spark/assembly.dest/out.jar data/archive/ output/
-  ```
+  
+  `$ spark-submit --class OlistCli out/spark/assembly.dest/out.jar data/archive/ output/`
+
 
 - Go to `output/late_deliveries` folder to get the result in CSV format
 
