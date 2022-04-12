@@ -59,44 +59,47 @@ Since I wanted to know what kind of products were delivered late I did the follo
 ## How to run on AWS 
 
 ### On your local:
-- Run `$ mill spark.assembly`
-- Verify `out.jar` is created `$ ls out/spark/assembly.dest/`
+* Run `$ mill spark.assembly`
+* Verify `out.jar` is created `$ ls out/spark/assembly.dest/`
   
 ### On AWS: 
 #### Create an S3 bucket
 On AWS S3, create an S3 bucket i.e. `spark-scala-olist` and mark the checkbox **Block all public access**
   ![S3 Bucket](documentation/s3bucket.png)
-    - Create the prefixes `jobs` and `data`
-    - Upload the `out.jar` into the `jobs` prefix in s3 => `s3://spark-scala-olist/jobs/`
-      ![out.jar](documentation/out_jar.png)
-    - Upload the unzipped `archive` folder into the `data` prefix in s3 => `s3://spark-scala-olist/data/`
-      ![olist data](documentation/olist_data.png)
+
+* Create the prefixes `jobs` and `data`
+
+* Upload the `out.jar` into the `jobs` prefix in s3 => `s3://spark-scala-olist/jobs/`
+  ![out.jar](documentation/out_jar.png)
+
+* Upload the unzipped `archive` folder into the `data` prefix in s3 => `s3://spark-scala-olist/data/`
+  ![olist data](documentation/olist_data.png)
 
 #### Create an EMR cluster
 On AWS EMR, create a new cluster with the configuration like the image below: 
 
 ![emr cluster](documentation/emr_cluster.png)
 
-- Go to **Steps** and verify that `Setup hadoop debugging` is in **Complete** state
+* Go to **Steps** and verify that `Setup hadoop debugging` is in **Complete** state
   ![Setup hadoop debugging](documentation/hadoop_debug.png)
   
 
-- Add a new step with the following
-  - **Step type**: Spark Application
-  - **Name**: Olist Assignment
-  - **Deploy Mode**: Cluster
-  - **Spark-submit options**: `--class OlistCli`
-  - **Application location**: `s3://spark-scala-olist/jobs/out.jar`
-  - **Arguments**: `s3://spark-scala-olist/data/archive/ s3://spark-scala-olist/output/`
-  - Click on **Add**
+* Add a new step with the following
+  * **Step type**: Spark Application
+  * **Name**: Olist Assignment
+  * **Deploy Mode**: Cluster
+  * **Spark-submit options**: `--class OlistCli`
+  * **Application location**: `s3://spark-scala-olist/jobs/out.jar`
+  * **Arguments**: `s3://spark-scala-olist/data/archive/ s3://spark-scala-olist/output/`
+  * Click on **Add**
     ![Step information](documentation/step_info.png)
-    
+  
 
-- Wait for the step to be in **Completed** state:
+* Wait for the step to be in **Completed** state:
   ![Step completed](documentation/step_completed.png)
 
 
-- Verify we now have an `output` prefix in s3 and we have the csv with the results:
+* Verify we now have an `output` prefix in s3 and we have the csv with the results:
   ![Step output](documentation/step_output.png)
 
 
