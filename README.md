@@ -22,8 +22,11 @@ For the result I need to identify the list of customers having late deliveries (
 - Download data from kaggle https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
   - Unzip the `archive.zip` file
   - Copy archive folder into the folder `data/` inside the repository
-    
-- In the root of the repository, run the following command: `$ mill spark.standalone.run`
+#### Batch
+
+By running the following command, we can find the results of the distinct customers that had late deliveries under the folder `output/customers_with_late_deliveries`
+
+`$  mill spark.standalone.run batch data/archive/ output/`
   
 - The logs should display something similar to the below image: 
   ![Result](documentation/ResultsOnTerminal.png)
@@ -33,7 +36,14 @@ Alternatively we could run our script using `spark-submit`, but we will need the
 $ spark-submit --class OlistCli out/spark/assembly.dest/out.jar data/archive/ output/
 ```
 
-- Go to `output/late_deliveries` folder to get the result in CSV format
+
+#### Report 
+By running the following command a report under `output/report` is displayed with the count for how many deliveries were delayed per day:
+
+`$ mill spark.standalone.run report data/archive/ output/report/`
+
+
+
 
 ### Result explanation
  For getting the deliveries that were late for more than 10 days I used the following files: 

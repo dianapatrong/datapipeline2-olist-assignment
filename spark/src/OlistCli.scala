@@ -1,34 +1,25 @@
+import zio._
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions._
 
-object OlistCli {
+object OlistCli extends ZIOApp {
 
-    def listDelayedDeliveries(spark: SparkSession, in: String, out: String) = {
-        val dfOrders = spark.read.option("header", true).csv(in.concat("olist_orders_dataset.csv"))
-        var dfLateDeliveries = dfOrders.withColumn("delivery_delay(days)", datediff(to_utc_timestamp(dfOrders.col("order_delivered_customer_date"), "America/Sao_Paulo"), to_utc_timestamp(dfOrders.col("order_purchase_timestamp"), "America/Sao_Paulo")))
-        dfLateDeliveries = dfLateDeliveries.select("order_id", "customer_id", "order_delivered_customer_date", "order_purchase_timestamp", "delivery_delay(days)").filter(dfLateDeliveries.col("delivery_delay(days)") > 10)
-        println("Writing information for customers with late deliveries ..")
-        dfLateDeliveries.select("customer_id").repartition(1).write.mode("overwrite").option("header", "true").csv(out.concat("customers_with_late_deliveries"))
+    import org.apache.log4j.Logger
 
-        val dfOrderItems = spark.read.option("header", true).csv(in.concat("olist_order_items_dataset.csv")).select("order_id", "product_id")
-        val dfItems = spark.read.option("header", true).csv(in.concat("olist_products_dataset.csv")).select("product_id", "product_category_name")
+    type Environment = ZEnv
 
-        var dfLateDeliveriesWithProductInfo = dfLateDeliveries.join(dfOrderItems, Seq("order_id"), "inner").join(dfItems, Seq("product_id"), "inner")
-        dfLateDeliveriesWithProductInfo.show
-        println("Writing information for products that were delivered late ..")
-        dfLateDeliveriesWithProductInfo.repartition(1).write.mode("overwrite").option("header", "true").csv(out.concat("late_deliveries_with_product_information"))
+    val tag = Tag[Environment]
+
+    override def layer: ZLayer[Has[ZIOAppArgs],Any,Environment] = ZLayer.wire[Environment](ZEnv.live)
+
+    def run(command: Array[String]) = command match {
+        case Array("batch", in, out) => OlistBatch.run((spark: SparkSession) => OlistBatch.listDelayedDeliveries(spark, in, out))
+        case Array("report", in, out) => OlistBatch.run((spark: SparkSession) => OlistBatch.report(spark, in, out))
+        case _ => println(s"command '$command' not recognized (batch|index)")
     }
-
-    def run(f: SparkSession => Unit) = {
-        val builder = SparkSession.builder.appName("Spark Olist Assignment")
-        val spark = builder.getOrCreate()
-        f(spark)
-        spark.close
-    }
-
-    def main(args: Array[String]) = {
-            println("Olist Cli: Running ..")
-            run((spark: SparkSession) => listDelayedDeliveries(spark, args(0), args(1)))
-        }
+    override def run: ZIO[Environment with ZEnv with Has[ZIOAppArgs],Any,Any] = for {
+     args <- getArgs if args.length > 0
+     _ <- ZIO.attempt(run(args.toArray))
+     _ <- Console.printLine(s"finished")
+    } yield ()
 
 }
