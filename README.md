@@ -13,6 +13,7 @@ For the result I need to identify the list of customers having late deliveries (
 ### Pre-requisites: 
 - Install Apache Spark
 - Install mill
+- Install Java 
 
 
 ### How to run: 
@@ -41,7 +42,6 @@ $ spark-submit --class OlistCli out/spark/assembly.dest/out.jar data/archive/ ou
 By running the following command a report under `output/report` is displayed with the count for how many deliveries were delayed per day:
 
 `$ mill spark.standalone.run report data/archive/ output/report/`
-
 
 
 
@@ -102,7 +102,7 @@ On AWS EMR, create a new cluster with the configuration like the image below:
   * **Deploy Mode**: Cluster
   * **Spark-submit options**: `--class OlistCli`
   * **Application location**: `s3://spark-scala-olist/jobs/out.jar`
-  * **Arguments**: `s3://spark-scala-olist/data/archive/ s3://spark-scala-olist/output/`
+  * **Arguments**: `batch s3://spark-scala-olist/data/archive/ s3://spark-scala-olist/output/`
   * Click on **Add**
     ![Step information](documentation/step_info.png)
   
