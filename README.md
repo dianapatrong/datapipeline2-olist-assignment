@@ -3,7 +3,7 @@
 For this assignment, I will use a kaggle a public dataset of orders made at Olist Store, a Brazilian ecommerce site.
 For the result I need to identify the list of customers having late deliveries (more than 10 days).
 
-Requirements:
+### Requirements:
 - Using olist dataset https://www.kaggle.com/olistbr/brazilian-ecommerce, identify all late deliveries, 
   so that we can provide a 10% discount on next delivery to boost the sales.
 - **order_purchase_timestamp** is by default in Sao Paulo timezone.
@@ -18,19 +18,20 @@ Requirements:
 ### How to run: 
 
 - Clone repo `git clone https://github.com/dianapatrong/datapipeline2-olist-assignment.git`
+- Create a folder named `data` at the root of the repository
 - Download data from kaggle https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
   - Unzip the `archive.zip` file
   - Copy archive folder into the folder `data/` inside the repository
     
-- Inside the root of the repository, run the following command: `$ mill spark.standalone.run`
+- In the root of the repository, run the following command: `$ mill spark.standalone.run`
   
-- The logs should be similar to the below image: 
+- The logs should display something similar to the below image: 
   ![Result](documentation/ResultsOnTerminal.png)
   
-  Alternatively we could run our script using `spark-submit`, but we will need the jar file, this will be covered on the "How to run on AWS" section
-  
-  `$ spark-submit --class OlistCli out/spark/assembly.dest/out.jar data/archive/ output/`
-
+```  
+Alternatively we could run our script using `spark-submit`, but we will need the jar file, this will be covered on the "How to run on AWS" section
+$ spark-submit --class OlistCli out/spark/assembly.dest/out.jar data/archive/ output/
+```
 
 - Go to `output/late_deliveries` folder to get the result in CSV format
 
@@ -46,7 +47,8 @@ NOTE: I'm taking into account that the columns order_purchase_timestamp and orde
 ```
 2. Calculate the difference in days from the columns previously converted to get the late deliveries
 3. Filter the data to only include the deliveries that were more than 10 days late
-4. Verify output inside `output/customers_with_late_deliveries`
+4. Select only the customer id information
+5. Verify output inside `output/customers_with_late_deliveries`
 
 Extra:
 Since I wanted to know what kind of products were delivered late I did the following: 
