@@ -119,3 +119,11 @@ On AWS EMR, create a new cluster with the configuration like the image below:
 NOTE: Bucket names are unique across all AWS accounts, don't forget to substitute the bucket name "spark-scala-olist" with yours.
 ```
 
+
+## Testing 
+
+1. Verify data is downloaded correctly to the correct folder
+2. Verify dataset contains important columns `order_delivered_customer_date`, `customer_id` and `order_purchase_timestamp`
+3. Verify columns `order_delivered_customer_date` and `order_purchase_timestamp` can be casted to timestamp data type, otherwise filter out
+4. Verify there aren't any deliveries in the result which delay is less than 10 days
+5. Verify result is readable and in csv format 
