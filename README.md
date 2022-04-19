@@ -23,6 +23,9 @@ For the result I need to identify the list of customers having late deliveries (
 - Download data from kaggle https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
   - Unzip the `archive.zip` file
   - Copy archive folder into the folder `data/` inside the repository
+  
+  
+- cd into the repository `cd datapipeline2-olist-assignment `
 #### Batch
 
 By running the following command, we can find the results of the distinct customers that had late deliveries under the folder `output/customers_with_late_deliveries`
@@ -41,7 +44,7 @@ $ spark-submit --class OlistCli out/spark/assembly.dest/out.jar data/archive/ ou
 #### Report 
 By running the following command a report under `output/report` is displayed with the count for how many deliveries were delayed per day:
 
-`$ mill spark.standalone.run report data/archive/ output/report/`
+```$ mill spark.standalone.run report data/archive/ output/```
 
 
 
@@ -122,6 +125,8 @@ NOTE: Bucket names are unique across all AWS accounts, don't forget to substitut
 
 ## Testing 
 
+To run the tests, while at the root of the repository execute the following command: 
+`$  mill spark.standalone.run test  data/archive/ output/`
 1. Verify data is downloaded correctly to the correct folder
 2. Verify dataset contains important columns `order_delivered_customer_date`, `customer_id` and `order_purchase_timestamp`
 3. Verify columns `order_delivered_customer_date` and `order_purchase_timestamp` can be casted to timestamp data type, otherwise filter out

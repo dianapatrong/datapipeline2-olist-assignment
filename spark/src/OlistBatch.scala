@@ -27,7 +27,6 @@ object OlistBatch {
     }
 
     def report(spark: SparkSession, in: String, out: String) = {
-            import spark.implicits._
             var df = spark.read.option("header", true).csv(in.concat("olist_orders_dataset.csv"))
 
             df = df.withColumn("date", col("order_purchase_timestamp").cast("date"))
@@ -49,8 +48,66 @@ object OlistBatch {
                     select *
                     from dates
                     """)
-            report.coalesce(1).write.mode("Overwrite").option("header", "true").csv(out)
+            report.coalesce(1).write.mode("Overwrite").option("header", "true").csv(out.concat("report"))
 
         }
 
+     def test(spark: SparkSession, in: String, out: String) = {
+                import java.io.File
+                import org.apache.spark.sql.types.TimestampType
+
+                println("--------------------------------------------------------------------------------")
+                println("Verify source datasets exist:")
+                val orders_dataset = new java.io.File(in.concat("olist_orders_dataset.csv")).exists
+                val order_items_dataset = new java.io.File(in.concat("olist_order_items_dataset.csv")).exists
+                val products_dataset = new java.io.File(in.concat("olist_products_dataset.csv")).exists
+                if ((orders_dataset==true) && (order_items_dataset==true) && (products_dataset==true)){
+                    println("1. olist_orders_dataset.csv: exists")
+                    println("2. olist_order_items_dataset.csv: exists")
+                    println("3. olist_products_dataset.csv: exists")
+                }
+                else {
+                    throw new RuntimeException("ERROR: Dataset files are missing .. ")
+                }
+
+                println("--------------------------------------------------------------------------------")
+                println("Verify dataset contains important columns:")
+                val columns = spark.read.option("header", true).csv(in.concat("olist_orders_dataset.csv")).columns
+                if(columns.contains("order_delivered_customer_date") && columns.contains("customer_id") && columns.contains("order_purchase_timestamp")){
+                println("Important columns exist: order_delivered_customer_date, customer_id, order_purchase_timestamp")
+                }
+                else {
+                    throw new RuntimeException("ERROR: Some important columns are missing .. ")
+                }
+
+                println("--------------------------------------------------------------------------------")
+                println("Verify columns order_delivered_customer_date and order_purchase_timestamp can be casted to timestamp data type")
+                var df = spark.read.option("header", true).csv(in.concat("olist_orders_dataset.csv")).select("order_delivered_customer_date", "order_purchase_timestamp")
+                df = df.withColumn("order_delivered_customer_date", to_timestamp(col("order_delivered_customer_date")))
+                df = df.withColumn("order_purchase_timestamp", to_timestamp(col("order_purchase_timestamp")))
+
+                val order_delivered_column_dtype = df.schema("order_delivered_customer_date").dataType
+                val order_purchase_column_dtype = df.schema("order_purchase_timestamp").dataType
+
+                if (order_delivered_column_dtype.isInstanceOf[TimestampType] && order_purchase_column_dtype.isInstanceOf[TimestampType]){
+                    println("order_purchase_timestamp and order_delivered_customer_date columns are correctly casted to TimestampType")
+                }
+                else{
+                    throw new RuntimeException("ERROR: DataTypes were not casted to timestamp .. ")
+                }
+
+                println("--------------------------------------------------------------------------------")
+                println("Verify there aren't any deliveries in the result which delay is less or equal than 10 days")
+                var df1 = spark.read.option("header", true).csv(out.concat("late_deliveries_with_product_information"))
+                df1 = df1.filter(col("delivery_delay(days)") <= 10)
+
+                if (df1.count == 0){
+                    println("All the deliveries match the criteria of being delayed more than 10 days")
+                }
+                else {
+                    throw new RuntimeException("ERROR: There are some orders that were delayed by 10 or less days  .. ")
+                }
+
+                println("--------------------------------------------------------------------------------")
+     }
 }
